@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`@lixiaolin94/smooth-corners` — Figma/iOS-style corner smoothing for CSS. Converts `radius + smoothing` into `border-radius` (compensated) + `corner-shape: superellipse(K)`.
+`@qiuyedx/smooth-corners` — Figma/iOS-style corner smoothing for CSS. Converts `radius + smoothing` into `border-radius` (compensated) + `corner-shape: superellipse(K)`.
 
 ## Tech Stack
 
-Pure ESM, zero dependencies, zero build step. Type declarations are hand-written in `types/`. Published to npm as `@lixiaolin94/smooth-corners`.
+Pure ESM, zero dependencies, zero build step. Type declarations are hand-written in `types/`. Prepared for npm publishing as `@qiuyedx/smooth-corners`.
 
 ## Development
 

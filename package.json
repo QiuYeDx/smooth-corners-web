@@ -1,5 +1,5 @@
 {
-	"name": "@lixiaolin94/smooth-corners",
+	"name": "@qiuyedx/smooth-corners",
 	"version": "0.1.0",
 	"description": "Figma-style corner smoothing for CSS. Converts corner radius + smoothing to border-radius + corner-shape: superellipse(K).",
 	"type": "module",
@@ -48,12 +48,12 @@
 	"license": "Apache-2.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/lixiaolin94/smooth-corners-web"
+		"url": "https://github.com/QiuYeDx/smooth-corners-web"
 	},
 	"bugs": {
-		"url": "https://github.com/lixiaolin94/smooth-corners-web/issues"
+		"url": "https://github.com/QiuYeDx/smooth-corners-web/issues"
 	},
-	"homepage": "https://lixiaolin94.github.io/smooth-corners-web",
+	"homepage": "https://github.com/QiuYeDx/smooth-corners-web",
 	"publishConfig": {
 		"access": "public"
 	}

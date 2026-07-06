@@ -9,7 +9,7 @@ Figma/iOS-style corner smoothing for CSS. Converts `corner radius + smoothing` i
 ## Install
 
 ```bash
-npm i @lixiaolin94/smooth-corners
+npm i @qiuyedx/smooth-corners
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ Add the following rules to your global stylesheet (also available as `smoothCorn
 React:
 
 ```jsx
-import { smoothCorners } from '@lixiaolin94/smooth-corners';
+import { smoothCorners } from '@qiuyedx/smooth-corners';
 
 <div className="smooth-corners" style={smoothCorners(30)} />
 ```
@@ -43,7 +43,7 @@ import { smoothCorners } from '@lixiaolin94/smooth-corners';
 Vue:
 
 ```vue
-import { smoothCorners } from '@lixiaolin94/smooth-corners';
+import { smoothCorners } from '@qiuyedx/smooth-corners';
 
 <div class="smooth-corners" :style="smoothCorners(30)" />
 ```
@@ -51,7 +51,7 @@ import { smoothCorners } from '@lixiaolin94/smooth-corners';
 Vanilla JS:
 
 ```js
-import { applySmooth, smoothCorners } from '@lixiaolin94/smooth-corners';
+import { applySmooth, smoothCorners } from '@qiuyedx/smooth-corners';
 
 applySmooth(element, smoothCorners(30));
 ```
@@ -63,7 +63,7 @@ Returns `--sc-r` (original radius), `--sc-i` (compensated radius), `--sc-s` (`su
 When you know the element's size, use `computeSmoothCorners` for accurate results — it clamps radius and smoothing to available space automatically.
 
 ```js
-import { computeSmoothCorners } from '@lixiaolin94/smooth-corners';
+import { computeSmoothCorners } from '@qiuyedx/smooth-corners';
 
 const result = computeSmoothCorners(180, 120, 30, 0.6);
 // {
@@ -84,14 +84,14 @@ Declarative — add attributes and import the auto-observer:
 <div data-smooth-corners="30"></div>
 
 <script type="module">
-  import '@lixiaolin94/smooth-corners/declarative';
+  import '@qiuyedx/smooth-corners/declarative';
 </script>
 ```
 
 Programmatic — observe individual elements:
 
 ```js
-import { observe, unobserve } from '@lixiaolin94/smooth-corners/observer';
+import { observe, unobserve } from '@qiuyedx/smooth-corners/observer';
 
 observe(element, { radius: 30, smoothing: 0.6 });
 unobserve(element);
@@ -101,11 +101,11 @@ unobserve(element);
 
 | Subpath | Description |
 | --- | --- |
-| `@lixiaolin94/smooth-corners` | CSS variable API + dimension-aware compute |
-| `@lixiaolin94/smooth-corners/css` | CSS variable API only |
-| `@lixiaolin94/smooth-corners/compute` | Dimension-aware pure compute |
-| `@lixiaolin94/smooth-corners/observer` | DOM observer (import has no side effects; auto-injects base styles on first use) |
-| `@lixiaolin94/smooth-corners/declarative` | Side-effect import — starts auto-observe |
+| `@qiuyedx/smooth-corners` | CSS variable API + dimension-aware compute |
+| `@qiuyedx/smooth-corners/css` | CSS variable API only |
+| `@qiuyedx/smooth-corners/compute` | Dimension-aware pure compute |
+| `@qiuyedx/smooth-corners/observer` | DOM observer (import has no side effects; auto-injects base styles on first use) |
+| `@qiuyedx/smooth-corners/declarative` | Side-effect import — starts auto-observe |
 
 ## Browser Support
 

@@ -124,7 +124,7 @@
         <h1>smooth-corners</h1>
         <span class="header-links">
           <a href="./index.html">English</a>
-          <a href="https://github.com/lixiaolin94/smooth-corners-web">GitHub</a>
+          <a href="https://github.com/QiuYeDx/smooth-corners-web">GitHub</a>
           <a href="https://x.com/xiaolinbythesea">Twitter</a>
         </span>
       </div>
@@ -149,7 +149,7 @@
 
       <section id="install">
         <h2>安装</h2>
-        <pre><code>npm i @lixiaolin94/smooth-corners</code></pre>
+        <pre><code>npm i @qiuyedx/smooth-corners</code></pre>
         <p>纯 ESM、零依赖、无需构建步骤。提供三层 API：</p>
         <ul>
           <li><strong>CSS 变量 API</strong> - 适合大多数场景。只需要 radius 和 smoothing，能直接用于 React/Vue 组件。</li>
@@ -183,17 +183,17 @@
 }</code></pre>
 
         <h3>React</h3>
-        <pre><code>import { smoothCorners } from '@lixiaolin94/smooth-corners';
+        <pre><code>import { smoothCorners } from '@qiuyedx/smooth-corners';
 
 &lt;div className="smooth-corners" style={smoothCorners(30)} /&gt;</code></pre>
 
         <h3>Vue</h3>
-        <pre><code>import { smoothCorners } from '@lixiaolin94/smooth-corners';
+        <pre><code>import { smoothCorners } from '@qiuyedx/smooth-corners';
 
 &lt;div class="smooth-corners" :style="smoothCorners(30)" /&gt;</code></pre>
 
         <h3>Vanilla JS</h3>
-        <pre><code>import { applySmooth, smoothCorners } from '@lixiaolin94/smooth-corners';
+        <pre><code>import { applySmooth, smoothCorners } from '@qiuyedx/smooth-corners';
 
 applySmooth(element, smoothCorners(30));</code></pre>
 
@@ -222,7 +222,7 @@ applySmooth(element, smoothCorners(30));</code></pre>
           <div class="demo-shape" id="compute-demo"></div>
         </div>
 
-        <pre><code>import { computeSmoothCorners } from '@lixiaolin94/smooth-corners';
+        <pre><code>import { computeSmoothCorners } from '@qiuyedx/smooth-corners';
 
 const result = computeSmoothCorners(180, 120, 30, 0.6);
 // {
@@ -254,7 +254,7 @@ const result = computeSmoothCorners(180, 120, 30, 0.6);
         <pre><code>&lt;div data-smooth-corners="30"&gt;...&lt;/div&gt;
 
 &lt;script type="module"&gt;
-  import '@lixiaolin94/smooth-corners/declarative';
+  import '@qiuyedx/smooth-corners/declarative';
 &lt;/script&gt;</code></pre>
 
         <h3>编程式</h3>
@@ -267,7 +267,7 @@ const result = computeSmoothCorners(180, 120, 30, 0.6);
           <div class="demo-shape" id="programmatic-chip"></div>
         </div>
 
-        <pre><code>import { observe, unobserve } from '@lixiaolin94/smooth-corners/observer';
+        <pre><code>import { observe, unobserve } from '@qiuyedx/smooth-corners/observer';
 
 observe(el, { radius: 30, smoothing: 0.6 });
 unobserve(el);</code></pre>
