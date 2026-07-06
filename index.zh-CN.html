@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>smooth-corners - 面向 CSS 的 Figma/iOS 圆角平滑</title>
+    <meta name="description" content="smooth-corners 将 Figma/iOS 的 corner radius + smoothing 转换为 CSS border-radius + corner-shape: superellipse(K)。" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 20px 48px;
+        line-height: 1.6;
+        color: #111;
+      }
+
+      section {
+        margin-top: 32px;
+      }
+      h1,
+      p,
+      ul,
+      pre {
+        margin-top: 0;
+      }
+      h1 {
+        margin-bottom: 8px;
+      }
+      h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+      }
+      h3 {
+        margin-top: 24px;
+      }
+      hr {
+        margin: 32px 0;
+        border: 0;
+        border-top: 1px solid #ddd;
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .header-links {
+        display: flex;
+        gap: 12px;
+      }
+
+      code,
+      pre,
+      output {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      code {
+        font-size: 0.95em;
+      }
+
+      pre {
+        background: #f5f5f5;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+
+      .demo-box {
+        border: 1px solid #ddd;
+        padding: 24px;
+        border-radius: 8px;
+        margin: 16px 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .demo-shape {
+        width: 180px;
+        height: 120px;
+        background: #0275ff;
+      }
+
+      .status {
+        display: inline-block;
+        font-size: 13px;
+        margin-top: 8px;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+
+      .status.supported {
+        color: #15803d;
+        border: 1px solid #15803d;
+      }
+      .status.unsupported {
+        color: #dc2626;
+        border: 1px solid #dc2626;
+      }
+
+      .controls label {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 12px;
+      }
+
+      .controls input[type="range"] {
+        width: 100%;
+        margin-top: 6px;
+      }
+      .metric-list {
+        padding-left: 20px;
+        margin: 16px 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-row">
+        <h1>smooth-corners</h1>
+        <span class="header-links">
+          <a href="./index.html">English</a>
+          <a href="https://github.com/lixiaolin94/smooth-corners-web">GitHub</a>
+          <a href="https://x.com/xiaolinbythesea">Twitter</a>
+        </span>
+      </div>
+      <p>将 Figma / iOS 的 <code>corner radius + smoothing</code> 转换为 CSS <code>border-radius</code> + <code>corner-shape: superellipse(K)</code>。</p>
+      <p class="status" id="support-status"></p>
+    </header>
+
+    <main>
+      <section id="what">
+        <h2>什么是 Smooth Corner</h2>
+        <p>
+          标准 <code>border-radius</code> 绘制的是圆弧，圆弧与直边相接的位置会出现突然的曲率变化。Figma 的 Corner Smoothing 滑块和 iOS 的
+          <code>UIBezierPath</code> <code>.continuous</code> 风格会使用超椭圆曲线替代圆弧，让曲率过渡更连续。<code>smoothing</code> 参数控制这种过渡的范围：0 表示纯圆弧，1 表示最大平滑。
+        </p>
+        <p>
+          新的 CSS 属性 <code>corner-shape: superellipse(K)</code> 可以原生表达这类效果。本库负责把设计工具里的
+          <code>radius + smoothing</code> 值转换成浏览器需要的补偿后 <code>border-radius</code> 和 <code>corner-shape: superellipse(K)</code>。
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="install">
+        <h2>安装</h2>
+        <pre><code>npm i @lixiaolin94/smooth-corners</code></pre>
+        <p>纯 ESM、零依赖、无需构建步骤。提供三层 API：</p>
+        <ul>
+          <li><strong>CSS 变量 API</strong> - 适合大多数场景。只需要 radius 和 smoothing，能直接用于 React/Vue 组件。</li>
+          <li><strong>尺寸感知计算</strong> - 当圆角半径可能接近元素短边一半时使用，会自动约束以避免溢出。</li>
+          <li><strong>Observer</strong> - 当你希望自动跟踪元素尺寸时使用，无需手动计算。</li>
+        </ul>
+      </section>
+
+      <hr />
+
+      <section id="css-api">
+        <h2>CSS 变量 API</h2>
+        <p>
+          <code>smoothCorners(radius, smoothing?)</code> 会返回一组 CSS 自定义属性，配合 <code>.smooth-corners</code> 类使用。该类通过
+          <code>@supports</code> 做渐进增强：支持 <code>corner-shape</code> 时使用补偿后的半径 + 超椭圆；不支持时回退到原始半径。
+        </p>
+
+        <div class="demo-box">
+          <div class="demo-shape smooth-corners" id="css-demo"></div>
+        </div>
+
+        <p>把这些规则加入全局样式表即可，也可以直接使用导出的 <code>smoothCornersCSS</code>：</p>
+        <pre><code>.smooth-corners {
+  border-radius: var(--sc-r);
+}
+@supports (corner-shape: superellipse(2)) {
+  .smooth-corners {
+    border-radius: var(--sc-i);
+    corner-shape: var(--sc-s);
+  }
+}</code></pre>
+
+        <h3>React</h3>
+        <pre><code>import { smoothCorners } from '@lixiaolin94/smooth-corners';
+
+&lt;div className="smooth-corners" style={smoothCorners(30)} /&gt;</code></pre>
+
+        <h3>Vue</h3>
+        <pre><code>import { smoothCorners } from '@lixiaolin94/smooth-corners';
+
+&lt;div class="smooth-corners" :style="smoothCorners(30)" /&gt;</code></pre>
+
+        <h3>Vanilla JS</h3>
+        <pre><code>import { applySmooth, smoothCorners } from '@lixiaolin94/smooth-corners';
+
+applySmooth(element, smoothCorners(30));</code></pre>
+
+        <h3>返回值</h3>
+        <ul>
+          <li><code>--sc-r</code> - 原始半径，用于回退</li>
+          <li><code>--sc-i</code> - 补偿后的半径，用于超椭圆模式</li>
+          <li><code>--sc-s</code> - <code>superellipse(K)</code> 值</li>
+        </ul>
+        <p>
+          <code>smoothing</code> 默认值为 <code>0.6</code>，对应 Figma 的 60% Corner Smoothing。设置为 <code>0</code> 表示纯圆弧，设置为
+          <code>1</code> 表示最大平滑。
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="compute-api">
+        <h2>尺寸感知计算</h2>
+        <p>
+          当你知道元素的实际尺寸时，可以使用 <code>computeSmoothCorners(width, height, radius, smoothing)</code> 获得更准确的结果。它会把半径约束到
+          <code>min(width, height) / 2</code> 以内，并在空间不足时逐步把 smoothing 压缩到 0，避免相邻圆角互相重叠。
+        </p>
+
+        <div class="demo-box">
+          <div class="demo-shape" id="compute-demo"></div>
+        </div>
+
+        <pre><code>import { computeSmoothCorners } from '@lixiaolin94/smooth-corners';
+
+const result = computeSmoothCorners(180, 120, 30, 0.6);
+// {
+//   radius: 30,             // 目标圆角半径
+//   compensatedRadius: ..., // 平滑算法计算出的补偿半径
+//   k: ...,                 // 超椭圆指数
+//   smoothing: ...,         // 实际生效的 smoothing，空间不足时会自动降低
+// }</code></pre>
+      </section>
+
+      <hr />
+
+      <section id="observer-api">
+        <h2>Observer</h2>
+        <p>
+          Observer 内部使用 <code>computeSmoothCorners</code>，会自动读取元素尺寸并应用 CSS 自定义属性。它同时支持声明式 HTML 属性和编程式调用，并在元素尺寸变化时自动重新计算。基础样式
+          <code>.smooth-corners</code> 会在首次使用时自动注入，不需要手动设置。
+        </p>
+
+        <h3>声明式</h3>
+        <p>
+          给元素添加 <code>data-smooth-corners</code> 属性，然后导入 <code>smooth-corners/declarative</code> 即可启用自动扫描。元素新增、移除和属性变化都会被 MutationObserver 捕获。
+        </p>
+
+        <div class="demo-box">
+          <div class="demo-shape" data-smooth-corners="30" data-smooth-corners-smoothing="0.6"></div>
+        </div>
+
+        <pre><code>&lt;div data-smooth-corners="30"&gt;...&lt;/div&gt;
+
+&lt;script type="module"&gt;
+  import '@lixiaolin94/smooth-corners/declarative';
+&lt;/script&gt;</code></pre>
+
+        <h3>编程式</h3>
+        <p>
+          使用 <code>observe(el, opts)</code> / <code>unobserve(el)</code> 直接控制单个元素。如需手动管理生命周期，可从
+          <code>smooth-corners/observer</code> 导入 <code>startAutoObserve()</code> / <code>stopAutoObserve()</code>。
+        </p>
+
+        <div class="demo-box">
+          <div class="demo-shape" id="programmatic-chip"></div>
+        </div>
+
+        <pre><code>import { observe, unobserve } from '@lixiaolin94/smooth-corners/observer';
+
+observe(el, { radius: 30, smoothing: 0.6 });
+unobserve(el);</code></pre>
+      </section>
+
+      <hr />
+
+      <section id="playground">
+        <h2>Playground</h2>
+        <p>
+          拖动滑块可以查看不同尺寸和参数下的 <code>computeSmoothCorners</code> 输出。留意当圆角半径接近短边一半时，smoothing 会如何被自动压缩。
+        </p>
+
+        <div class="controls">
+          <label for="width-range">宽度 <output id="width-output" for="width-range">220px</output></label>
+          <input type="range" id="width-range" min="72" max="420" step="1" value="220" />
+
+          <label for="height-range">高度 <output id="height-output" for="height-range">180px</output></label>
+          <input type="range" id="height-range" min="72" max="320" step="1" value="180" />
+
+          <label for="radius-range">圆角半径 <output id="radius-output" for="radius-range">40px</output></label>
+          <input type="range" id="radius-range" min="0" max="160" step="1" value="40" />
+
+          <label for="smoothing-range">圆角平滑 <output id="smoothing-output" for="smoothing-range">0.60</output></label>
+          <input type="range" id="smoothing-range" min="0" max="1" step="0.01" value="0.6" />
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-shape" id="preview-shape"></div>
+        </div>
+
+        <ul class="metric-list">
+          <li>应用半径：<strong id="metric-radius">0px</strong></li>
+          <li>补偿半径：<strong id="metric-compensated">0px</strong></li>
+          <li>实际 smoothing：<strong id="metric-smoothing">0</strong></li>
+          <li>Superellipse K：<strong id="metric-k">fallback</strong></li>
+          <li>
+            颜色：<span style="color: #0275ff">&#9632;</span> 平滑生效 <span style="color: #f5a623">&#9632;</span> 受空间约束被压缩
+            <span style="color: #999">&#9632;</span> 无平滑
+          </li>
+        </ul>
+
+        <h3>计算后的 CSS</h3>
+        <pre id="computed-css"><code></code></pre>
+
+        <h3>CSS 变量 API 输出</h3>
+        <pre id="vars-css"><code></code></pre>
+      </section>
+
+      <hr />
+
+      <section id="algorithm">
+        <h2>算法</h2>
+        <p>给定原始半径 <code>r</code> 和平滑值 <code>s</code>，计算 <code>corner-shape: superellipse(K)</code> 所需的 K。</p>
+
+        <h3>1. 补偿半径</h3>
+        <p>平滑会把曲线向外延展，因此需要更大的 <code>border-radius</code> 进行补偿。</p>
+        <pre><code>compensated = r * (1 + s)</code></pre>
+        <p>尺寸感知版本会把延展量限制在可用空间内：</p>
+        <pre><code>extension = min(r * s, limit - r)
+compensated = r + extension</code></pre>
+
+        <h3>2. 超椭圆指数 n</h3>
+        <p>超椭圆方程 <code>|x|^n + |y|^n = 1</code> 在 n = 2 时表示圆。这里使用闭式公式求解 n：</p>
+        <pre><code>d = 1 - 1/sqrt(2) ~= 0.293
+u = 1 - (r * d) / compensated
+n = ln2 / ln(1/u)</code></pre>
+
+        <h3>3. CSS K 值</h3>
+        <p>把 n 映射到 CSS <code>corner-shape</code> 参数：</p>
+        <pre><code>K = log2(max(2, n))</code></pre>
+      </section>
+
+      <hr />
+
+      <section id="support">
+        <h2>浏览器支持</h2>
+        <p><code>corner-shape: superellipse(...)</code> 是新的 CSS 属性，Chrome 138+ 支持。本库所有 API 都使用渐进增强：</p>
+        <ul>
+          <li><strong>支持时</strong> - 使用补偿半径 + <code>superellipse(K)</code> 获得真正的平滑圆角</li>
+          <li><strong>不支持时</strong> - 回退到标准 <code>border-radius</code> 和原始半径，仍然保留圆角，但没有平滑过渡</li>
+        </ul>
+        <p>所有 API 都通过 CSS <code>@supports</code> 自动切换，无需 polyfill 或条件逻辑。</p>
+      </section>
+    </main>
+
+    <script type="module">
+      import { applySmooth, computeSmoothCorners, smoothCorners, smoothCornersCSS } from "./src/index.js";
+      import { observe } from "./src/observer.js";
+      import "./src/declarative.js";
+
+      const $ = (id) => document.getElementById(id);
+      const supportsCornerShape = CSS.supports("corner-shape", "superellipse(2)");
+      const fmt = (value) => Number(value).toFixed(2).replace(/\.00$/, "");
+
+      const statusEl = $("support-status");
+      statusEl.textContent = supportsCornerShape ? "corner-shape: 已支持" : "corner-shape: 暂不支持";
+      statusEl.classList.add(supportsCornerShape ? "supported" : "unsupported");
+
+      // --- Base styles ---
+
+      if (!document.getElementById("smooth-corners-style")) {
+        const style = document.createElement("style");
+        style.id = "smooth-corners-style";
+        style.textContent = smoothCornersCSS;
+        document.head.append(style);
+      }
+
+      // --- CSS variable demo ---
+
+      applySmooth($("css-demo"), smoothCorners(30));
+
+      // --- Compute demo ---
+
+      const computeDemo = $("compute-demo");
+      const computeDemoResult = computeSmoothCorners(180, 120, 30, 0.6);
+      computeDemo.style.borderRadius =
+        supportsCornerShape && computeDemoResult.k !== null ? `${computeDemoResult.compensatedRadius}px` : `${computeDemoResult.radius}px`;
+      computeDemo.style.cornerShape = supportsCornerShape && computeDemoResult.k !== null ? `superellipse(${computeDemoResult.k})` : "";
+
+      if (!supportsCornerShape) {
+        for (const el of document.querySelectorAll(".demo-shape")) {
+          el.style.background = "#999";
+        }
+      }
+
+      // --- Playground ---
+
+      const ranges = {
+        width: $("width-range"),
+        height: $("height-range"),
+        radius: $("radius-range"),
+        smoothing: $("smoothing-range"),
+      };
+
+      const outputs = {
+        width: $("width-output"),
+        height: $("height-output"),
+        radius: $("radius-output"),
+        smoothing: $("smoothing-output"),
+      };
+
+      function updatePlayground() {
+        const width = Number(ranges.width.value);
+        const height = Number(ranges.height.value);
+        const radius = Number(ranges.radius.value);
+        const smoothing = Number(ranges.smoothing.value);
+
+        outputs.width.value = `${width}px`;
+        outputs.height.value = `${height}px`;
+        outputs.radius.value = `${radius}px`;
+        outputs.smoothing.value = smoothing.toFixed(2);
+
+        const result = computeSmoothCorners(width, height, radius, smoothing);
+        const vars = smoothCorners(radius, smoothing);
+        const previewShape = $("preview-shape");
+
+        previewShape.style.width = `${width}px`;
+        previewShape.style.height = `${height}px`;
+
+        if (result.k === null || !supportsCornerShape) {
+          previewShape.style.background = "#999";
+        } else if (result.smoothing < smoothing - 1e-6) {
+          previewShape.style.background = "#F5A623";
+        } else {
+          previewShape.style.background = "#0275FF";
+        }
+
+        if (supportsCornerShape && result.k !== null) {
+          previewShape.style.borderRadius = `${result.compensatedRadius}px`;
+          previewShape.style.cornerShape = `superellipse(${result.k})`;
+        } else {
+          previewShape.style.borderRadius = `${result.radius}px`;
+          previewShape.style.cornerShape = "";
+        }
+
+        $("metric-radius").textContent = `${fmt(result.radius)}px`;
+        $("metric-compensated").textContent = `${fmt(result.compensatedRadius)}px`;
+        $("metric-smoothing").textContent = result.k === null ? "0" : result.smoothing.toFixed(2);
+        $("metric-k").textContent = result.k === null ? "fallback" : fmt(result.k);
+
+        $("computed-css").querySelector("code").textContent =
+          result.k === null
+            ? `.card {\n  width: ${width}px;\n  height: ${height}px;\n  border-radius: ${fmt(result.radius)}px;\n}`
+            : `.card {\n  width: ${width}px;\n  height: ${height}px;\n  border-radius: ${fmt(result.compensatedRadius)}px;\n  corner-shape: superellipse(${fmt(result.k)});\n}\n\n/* fallback */\n.card {\n  border-radius: ${fmt(result.radius)}px;\n}`;
+
+        $("vars-css").querySelector("code").textContent = `const vars = smoothCorners(${radius}, ${smoothing.toFixed(2)});\n\n${JSON.stringify(vars, null, 2)}`;
+      }
+
+      for (const input of Object.values(ranges)) {
+        input.addEventListener("input", updatePlayground);
+      }
+      updatePlayground();
+
+      // --- Observer demo ---
+
+      observe($("programmatic-chip"), { radius: 30 });
+    </script>
+  </body>
+</html>
